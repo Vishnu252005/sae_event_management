@@ -9,12 +9,14 @@ class StatisticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('Statistics'),
         elevation: 0,
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: isDark ? Color(0xFF1F1F1F) : Colors.blue.shade700,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -22,9 +24,9 @@ class StatisticsScreen extends StatelessWidget {
           children: [
             _buildScoreDistributionCard(context),
             SizedBox(height: 16),
-            _buildTopTeamsCard(),
+            _buildTopTeamsCard(context),
             SizedBox(height: 16),
-            _buildAverageScoresCard(),
+            _buildAverageScoresCard(context),
           ],
         ),
       ),
@@ -32,8 +34,11 @@ class StatisticsScreen extends StatelessWidget {
   }
 
   Widget _buildScoreDistributionCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       elevation: 8,
+      color: isDark ? Color(0xFF1F1F1F) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: EdgeInsets.all(16),
@@ -49,12 +54,12 @@ class StatisticsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade900,
+                    color: isDark ? Colors.white : Colors.blue.shade900,
                   ),
                 ),
                 Icon(
                   Icons.bar_chart,
-                  color: Colors.blue.shade700,
+                  color: isDark ? Colors.blue.shade300 : Colors.blue.shade700,
                   size: 28,
                 ),
               ],
@@ -99,7 +104,7 @@ class StatisticsScreen extends StatelessWidget {
                               child: Text(
                                 teams[value.toInt()].name,
                                 style: TextStyle(
-                                  color: Colors.grey.shade700,
+                                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -138,7 +143,7 @@ class StatisticsScreen extends StatelessWidget {
                     horizontalInterval: 20,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Colors.grey.shade200,
+                        color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                         strokeWidth: 1,
                       );
                     },
@@ -153,10 +158,9 @@ class StatisticsScreen extends StatelessWidget {
                         BarChartRodData(
                           toY: entry.value.totalScore.toDouble(),
                           gradient: LinearGradient(
-                            colors: [
-                              Colors.blue.shade300,
-                              Colors.blue.shade500,
-                            ],
+                            colors: isDark 
+                                ? [Colors.blue.shade700, Colors.blue.shade400]
+                                : [Colors.blue.shade300, Colors.blue.shade500],
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                           ),
@@ -167,7 +171,9 @@ class StatisticsScreen extends StatelessWidget {
                           backDrawRodData: BackgroundBarChartRodData(
                             show: true,
                             toY: 100,
-                            color: Colors.grey.shade100,
+                            color: isDark 
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade100,
                           ),
                         ),
                       ],
@@ -182,7 +188,8 @@ class StatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopTeamsCard() {
+  Widget _buildTopTeamsCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final sortedTeams = List<Team>.from(teams)
       ..sort((a, b) => b.totalScore.compareTo(a.totalScore));
     final topTeams = sortedTeams.take(3).toList();
@@ -190,6 +197,7 @@ class StatisticsScreen extends StatelessWidget {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16),
       elevation: 4,
+      color: isDark ? Color(0xFF1F1F1F) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(16),
@@ -201,7 +209,7 @@ class StatisticsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue.shade900,
+                color: isDark ? Colors.white : Colors.blue.shade900,
               ),
             ),
             SizedBox(height: 16),
@@ -239,15 +247,16 @@ class StatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAverageScoresCard() {
+  Widget _buildAverageScoresCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final averageScore = teams.isEmpty
         ? 0.0
-        : teams.map((t) => t.totalScore).reduce((a, b) => a + b) /
-            teams.length;
+        : teams.map((t) => t.totalScore).reduce((a, b) => a + b) / teams.length;
 
     return Card(
       margin: EdgeInsets.all(16),
       elevation: 4,
+      color: isDark ? Color(0xFF1F1F1F) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: EdgeInsets.all(16),
@@ -259,7 +268,7 @@ class StatisticsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue.shade900,
+                color: isDark ? Colors.white : Colors.blue.shade900,
               ),
             ),
             SizedBox(height: 16),
@@ -269,7 +278,7 @@ class StatisticsScreen extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.blue.shade50,
+                  color: isDark ? Colors.blue.shade900.withOpacity(0.2) : Colors.blue.shade50,
                 ),
                 child: Center(
                   child: Text(
@@ -277,7 +286,7 @@ class StatisticsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade700,
+                      color: isDark ? Colors.blue.shade300 : Colors.blue.shade700,
                     ),
                   ),
                 ),

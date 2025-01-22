@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/team.dart';
 import '../widgets/score_input.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Team> teams;
@@ -10,8 +12,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -19,7 +23,9 @@ class HomeScreen extends StatelessWidget {
             floating: false,
             pinned: true,
             elevation: _isScrolled ? 4 : 0,
-            backgroundColor: _isScrolled ? Colors.white : Colors.transparent,
+            backgroundColor: _isScrolled 
+                ? (isDark ? Color(0xFF1F1F1F) : Colors.white)
+                : Colors.transparent,
             flexibleSpace: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 final top = constraints.biggest.height;
@@ -34,16 +40,23 @@ class HomeScreen extends StatelessWidget {
                     duration: Duration(milliseconds: 300),
                     opacity: progress,
                     child: Text(
-                      'Event Scoring',
+                      '',
                       style: TextStyle(
-                        color: progress > 0.5 ? Colors.blue.shade900 : Colors.transparent,
+                        color: isDark ? Colors.white : Colors.blue.shade900,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  background: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
-                    opacity: 1 - progress,
+                  background: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isDark 
+                            ? [Color(0xFF1F1F1F), Color(0xFF121212)]
+                            : [Colors.blue.shade700, Colors.blue.shade500],
+                      ),
+                    ),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -140,7 +153,7 @@ class HomeScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
+                      color: isDark ? Colors.white : Colors.grey.shade800,
                     ),
                   ),
                   SizedBox(height: 16),
@@ -152,6 +165,7 @@ class HomeScreen extends StatelessWidget {
                       return Card(
                         margin: EdgeInsets.only(bottom: 16),
                         elevation: 4,
+                        color: isDark ? Color(0xFF1F1F1F) : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -160,7 +174,9 @@ class HomeScreen extends StatelessWidget {
                             Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
+                                color: isDark 
+                                    ? Colors.blue.shade900.withOpacity(0.2)
+                                    : Colors.blue.shade50,
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(15),
                                   topRight: Radius.circular(15),
@@ -169,11 +185,15 @@ class HomeScreen extends StatelessWidget {
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: Colors.blue.shade100,
+                                    backgroundColor: isDark 
+                                        ? Colors.blue.shade900.withOpacity(0.3)
+                                        : Colors.blue.shade100,
                                     child: Text(
                                       '${index + 1}',
                                       style: TextStyle(
-                                        color: Colors.blue.shade900,
+                                        color: isDark 
+                                            ? Colors.blue.shade200
+                                            : Colors.blue.shade900,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -188,17 +208,22 @@ class HomeScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
+                                        color: isDark ? Colors.white : Colors.black,
                                       ),
                                       decoration: InputDecoration(
                                         labelText: 'Team Name',
                                         labelStyle: TextStyle(
-                                          color: Colors.blue.shade900,
+                                          color: isDark 
+                                              ? Colors.blue.shade200
+                                              : Colors.blue.shade900,
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                         filled: true,
-                                        fillColor: Colors.white,
+                                        fillColor: isDark 
+                                            ? Color(0xFF2A2A2A)
+                                            : Colors.white,
                                       ),
                                     ),
                                   ),

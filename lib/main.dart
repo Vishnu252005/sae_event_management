@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'widgets/main_layout.dart';
+import 'providers/theme_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(EventScoringApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: EventScoringApp(),
+    ),
+  );
 }
 
 class EventScoringApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
     return MaterialApp(
       title: 'Event Scoring System',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: FutureBuilder<bool>(
-        future: _checkFirstTime(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data! ? OnboardingScreen() : SplashScreen();
-          }
-          return SplashScreen();
-        },
-      ),
+          theme: themeProvider.themeData,
+          home: FutureBuilder<bool>(
+            future: _checkFirstTime(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return snapshot.data! ? OnboardingScreen() : SplashScreen();
+              }
+              return SplashScreen();
+            },
+          ),
+        );
+      },
     );
   }
 
