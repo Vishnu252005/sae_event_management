@@ -4,45 +4,36 @@ import 'package:provider/provider.dart';
 import 'widgets/main_layout.dart';
 import 'providers/theme_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstTime = prefs.getBool('first_time') ?? true;
+  
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
-      child: EventScoringApp(),
+      child: EventScoringApp(isFirstTime: isFirstTime),
     ),
   );
 }
 
 class EventScoringApp extends StatelessWidget {
+  final bool isFirstTime;
+  
+  const EventScoringApp({Key? key, required this.isFirstTime}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-    return MaterialApp(
-      title: 'Event Scoring System',
+        return MaterialApp(
+          title: 'Event Scoring System',
           theme: themeProvider.themeData,
-          home: FutureBuilder<bool>(
-            future: _checkFirstTime(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return snapshot.data! ? OnboardingScreen() : SplashScreen();
-              }
-              return SplashScreen();
-            },
-          ),
+          home: isFirstTime ? OnboardingScreen() : MainLayout(),
+          debugShowCheckedModeBanner: false,
         );
       },
     );
-  }
-
-  Future<bool> _checkFirstTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool isFirstTime = prefs.getBool('first_time') ?? true;
-    if (isFirstTime) {
-      await prefs.setBool('first_time', false);
-    }
-    return isFirstTime;
   }
 }
 
@@ -54,20 +45,26 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  final int _numPages = 3;
+  final int _numPages = 4;
 
   final List<OnboardingPage> _pages = [
+    OnboardingPage(
+      title: 'Welcome to Event Scoring',
+      description: 'Your all-in-one solution for managing event scores and competitions',
+      icon: Icons.emoji_events_rounded,
+      color: Colors.blue.shade700,
+    ),
     OnboardingPage(
       title: 'Easy Score Input',
       description: 'Quickly input and manage scores for multiple teams with our intuitive interface',
       icon: Icons.edit_note_rounded,
-      color: Colors.blue.shade700,
+      color: Colors.green.shade600,
     ),
     OnboardingPage(
       title: 'Real-time Results',
       description: 'View live rankings and results as you input scores',
       icon: Icons.leaderboard_rounded,
-      color: Colors.green.shade600,
+      color: Colors.orange.shade600,
     ),
     OnboardingPage(
       title: 'Detailed Statistics',
@@ -83,17 +80,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onNextPressed() {
+  void _onNextPressed() async {
     if (_currentPage < _numPages - 1) {
       _pageController.nextPage(
         duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       );
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('first_time', false);
+      
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainLayout()),
+        );
+      }
     }
   }
 
@@ -150,12 +152,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      _currentPage == _numPages - 1 ? "Let's Start!" : 'Next',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _currentPage == _numPages - 1 ? "Get Started" : 'Next',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(
+                          _currentPage == _numPages - 1 
+                              ? Icons.done
+                              : Icons.arrow_forward,
+                          size: 20,
+                        ),
+                      ],
                     ),
                   ),
                 ),
